@@ -1,0 +1,70 @@
+---
+# Source: livy/templates/rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: livy
+  labels:
+    app.kubernetes.io/name: livy
+    app.kubernetes.io/instance: livy
+rules:
+- apiGroups: [""]
+  resources: ["pods", "pods/log"]
+  verbs: ["*"]
+- apiGroups: ["", "extensions"]
+  resources: ["configmaps", "services", "ingresses"]
+  verbs: ["create", "update", "get", "list"]
+- apiGroups: [""]
+  resources: ["namespaces"]
+  verbs: ["get", "list"]
+- apiGroups: ["", "rbac.authorization.k8s.io"]
+  resources: ["serviceaccounts", "rolebindings"]
+  verbs: ["create", "update"]
+---
+# Source: livy/templates/rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: livy-spark
+  labels:
+    app.kubernetes.io/name: livy
+    app.kubernetes.io/instance: livy
+rules:
+- apiGroups: [""]
+  resources: ["*"]
+  verbs: ["*"]
+---
+# Source: livy/templates/rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: livy
+  labels:
+    app.kubernetes.io/name: livy
+    app.kubernetes.io/instance: livy
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: livy
+subjects:
+- name: livy
+  namespace: livy
+  kind: ServiceAccount
+---
+# Source: livy/templates/rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: livy-spark
+  namespace: livy
+  labels:
+    app.kubernetes.io/name: livy
+    app.kubernetes.io/instance: livy
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: livy-spark
+subjects:
+- name: livy-spark
+  namespace: livy
+  kind: ServiceAccount

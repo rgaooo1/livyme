@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: livy
+  namespace: livy
+  labels:
+    app: livy-ramp
+spec:
+  serviceName: livy-headless
+  selector:
+    matchLabels:
+      app: livy-ramp
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: livy-ramp
+    spec:
+      serviceAccountName: livy
+      securityContext:
+        runAsUser: 0
+      containers:
+        - name: livy-ramp
+          image: liveramp-cn-north-1.jcr.service.jdcloud.com/livy-custom:0.0.6
+          imagePullPolicy: Never
+          resources:
+            limits:
+              cpu: 1
+              memory: 512Mi
+            requests:
+              cpu: 200m
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: livy
+  name: livy
+  namespace: livy
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: 8080
+  selector:
+    app: livy-ramp
